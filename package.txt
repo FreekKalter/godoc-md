@@ -1,0 +1,101 @@
+{{with .PAst}}{{node . $.FSet}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .PDoc}}{{if not $.IsMain}}
+# {{.Name}}
+---
+
+```go
+import "{{.ImportPath}}"
+```
+
+{{else}}
+
+{{end}}{{comment_text .Doc "" ""}}
+{{example_text "" $.Examples $.FSet ""}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Consts}}
+## CONSTANTS
+
+{{range .}}{{node .Decl $.FSet}}
+{{comment_text .Doc "    " "\t"}}{{end}}
+{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Vars}}
+## VARIABLES
+
+{{range .}}{{node .Decl $.FSet}}
+{{comment_text .Doc "    " "\t"}}{{end}}
+{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Funcs}}
+## FUNCTIONS
+
+{{range .}}{{node .Decl $.FSet}}
+{{comment_text .Doc "" ""}}
+{{example_text .Name $.Examples $.FSet ""}}
+{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Types}}
+## TYPES
+
+```go
+{{range .}}{{$tname := .Name}}{{node .Decl $.FSet}}
+
+```
+{{range .Consts}}{{node .Decl $.FSet}}
+{{comment_text .Doc "    " "\t"}}
+{{end}}{{range .Vars}}{{node .Decl $.FSet}}
+{{comment_text .Doc "" "\t"}}
+{{end}}{{example_text .Name $.Examples $.FSet ""}}
+{{range .Funcs}}
+#### {{.Name}}
+```go
+{{node .Decl $.FSet}}
+```
+
+{{comment_text .Doc "" ""}}
+{{example_text .Name $.Examples $.FSet ""}}
+{{end}}
+{{range .Methods}} {{/* methods */}}
+#### {{.Name}}
+```go
+{{node .Decl $.FSet}}
+```
+{{comment_text .Doc "" "\t"}}
+{{$name := printf "%s_%s" $tname .Name}}
+
+{{if example_text $name $.Examples $.FSet ""}}
+```go
+{{example_text $name $.Examples $.FSet ""}}
+```
+{{end}}
+{{end}}{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with $.Notes}}
+{{range $marker, $content := .}}
+{{noteTitle $marker}}s
+
+{{range $content}}{{comment_text . "    " "\t"}}
+{{end}}{{end}}{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Dirs}}
+## SUBDIRECTORIES
+{{if $.DirFlat}}{{range .List}}{{if .HasPkg}}
+	{{.Path}}{{end}}{{end}}
+{{else}}{{range .List}}
+	{{repeat `. ` .Depth}}{{.Name}}{{end}}
+{{end}}{{end}}
